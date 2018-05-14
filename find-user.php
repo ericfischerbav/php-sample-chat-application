@@ -12,14 +12,14 @@ $display_search_field = false;
 $page_title = "";
 
 if (isset($_GET["user"])) {
-    $page_title = "Benutzer ausw&auml;hlen und hinzuf&uuml;gen";
+    $page_title = "Benutzer ausw&auml;hlen und zu Chat hinzuf&uuml;gen";
     
     // DB-Verbindung aufbauen
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD);
     mysqli_select_db($connection, DB_NAME);
     
     // Suche in den Benutzern mit dem Suchquery
-    $sql = "SELECT name FROM benutzer WHERE name LIKE '%".$_GET["user"]."%'";
+    $sql = "SELECT name FROM benutzer WHERE name LIKE '%".$_GET["user"]."%' AND NOT name = '".$_GET["user"]."'";
     $db_result = mysqli_query($connection, $sql);
     
     $users = array();
@@ -49,6 +49,7 @@ if (isset($_GET["user"])) {
 				</div>
 				<div class="col-sm">
 					<p class="text-right">
+						<a href="chats.php" class="btn btn-primary">Zur &Uuml;bersicht</a>
 						<a href="logout.php" class="btn btn-danger">Logout</a>
 					</p>
 				</div>
@@ -57,7 +58,12 @@ if (isset($_GET["user"])) {
 			if ($display_search_field) {
 			    include "internal/searchfield.inc.php";
 			} elseif (isset($users)) {
-			    include "internal/user-result-list.inc.php";
+			    if(!empty($users))
+			     include "internal/user-result-list.inc.php";
+			     else {
+			         echo '<div class="alert alert-danger">Keine Benutzer zu dieser Suche gefunden</div>';
+			         include 'internal/searchfield.inc.php';
+			     }
 			}
 			?>
 		</div>
