@@ -8,6 +8,8 @@ $password_missing = false;
 $repeat_pw_missing = false;
 $pw_not_equal = false;
 $unknown_error_occurred = false;
+$username_not_found = false;
+$wrong_password = false;
 
 // Abhängig davon, ob die Seite zur Anmeldung oder Registierung
 // dienen soll, wird der entsprechende Titel gesetzt.
@@ -22,9 +24,53 @@ if (! isset($_GET["register"])) {
 // Bedingung dafür, dass sich ein Benutzer einloggen will.
 // In diesem Fall ist keine Passwort-Wiederholung gesetzt.
 if (isset($_POST["username"]) and isset($_POST["password"]) and ! isset($_POST["repeat-pw"])) {
+    /*
+     * Prüfe, ob alle Felder gesetzt sind.
+     */
+    if ($_POST["username"] == "") {
+        $username_missing = true;
+    }
     
-    // Registrierung
+    if ($_POST["password"] == "") {
+        $password_missing = true;
+    }
+    
+    if (!$username_missing and !$password_missing) {
+        // Datenbankverbindung aufbauen
+        $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD);
+        mysqli_select_db($connection, DB_NAME);
+        
+        // Suche den Benutzer mit dem entsprechenden Benutzernamen
+        $sql = "SELECT * FROM benutzer WHERE name ='".$_POST["username"]."'";
+        $db_result = mysqli_query($connection, $sql);
+        $password_hash = "";
+        while ($row = mysqli_fetch_assoc($db_result)) {
+            $password_hash = $row["password"];
+        }
+        /*
+         * Wenn kein Passwort aus der Datenbank gelesen wurde, dann wurde auch der entsprechende
+         * Benutzername nicht in der Datenbank gefunden.
+         */
+        if ($password_hash == "") {
+            $username_not_found = true;
+        } else {
+            if (md5($_POST["password"]) != $password_hash) {
+                $wrong_password = true;
+            } else {
+                /*
+                 * Das Passwort stimmt. Der Benutzer kann auf die Chat-Übersicht
+                 * weitergeleitet werden. Außerdem wird der Login mit einer
+                 * $_SESSION Variable festgehalten.
+                 */
+                $_SESSION["user"] = $_POST["username"];
+                header("Location: chats.php");
+                exit();
+            }
+        }
+    }
+    
 } elseif (isset($_POST["username"]) and isset($_POST["password"]) and isset($_POST["repeat-pw"])) {
+    // Registrierung
     /*
      * Prüfe, ob alle Felder gesetzt sind.
      */
@@ -93,8 +139,17 @@ function create_success_message($text) {
 		if ($unknown_error_occurred) {
 		    create_error_message("Es ist ein unbekannter Fehler aufgetreten. Der Prozess konnte nicht abgeschlossen werden.");
 		}
+		
 		if (isset($_GET["register-success"])) {
 		    create_success_message("Registrierung erfolgreich. Bitte logge dich ein.");
+		}
+		
+		if($username_not_found) {
+		    create_error_message("Zu diesem Benutzernamen wurde kein Benutzer gefunden.");
+		}
+		
+		if ($wrong_password) {
+		    create_error_message("Das Passwort ist falsch. Bitte versuche es nocheinmal.");
 		}
 		?>
 		<form <?php echo 'action="'.$action.'"'; ?> method="post">
