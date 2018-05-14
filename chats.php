@@ -1,27 +1,93 @@
-<?php 
+<?php
 
+// Überprüfen, ob der Benutzer eingeloggt ist.
 session_start();
-if (!isset($_SESSION["user"])) {
-    header("Location: login.php");
+if (! isset($_SESSION["user"])) {
+    header("Location: login.php?not-authorized");
     exit();
+}
+
+include "internal/properties.inc.php";
+
+/**
+ * Diese Funktion selektiert alle Benutzer aus der Datenbank, mit denen Kontakt aufgenommen werden kann.
+ *
+ * @return Array mit allen Benutzern, die ausgewählt werden dürfen
+ */
+function select_users()
+{
+    // DB-Verbindung öffnen
+    $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD);
+    mysqli_select_db($connection, DB_NAME);
+    
+    // Benutzer selektieren
+    $sql = "SELECT name FROM benutzer WHERE NOT name = '" . $_SESSION["user"] . "'";
+    $db_result = mysqli_query($connection, $sql);
+    
+    // Benutzer in Array speichern
+    $users = array();
+    while ($row = mysqli_fetch_assoc($db_result)) {
+        $users[] = $row["name"];
+    }
+    
+    return $users;
+}
+
+/**
+ * Diese Funktion liest aus der Datenbank alle aktiven Chats des angemeldeten Benutzers.
+ */
+function fetch_chats()
+{
+    // DB-Verbindung öffnen
+    $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD);
+    mysqli_select_db($connection, DB_NAME);
+    
+    // Hole Teilnehmer der aktiven Chats
+    $sql = "SELECT benutzer FROM nimmtteil nt1 WHERE chat IN (SELECT chat FROM nimmtteil nt2 WHERE nt2.benutzer = '".$_SESSION["user"]."') AND NOT nt1.benutzer = '".$_SESSION["user"]."'";
+    $db_result = mysqli_query($connection, $sql);
 }
 
 ?>
 
 <html>
 
-	<head>
-		<title>Chat-&Uuml;bersicht</title>
-		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
-	</head>
-	
-	<body>
-		<div class="container">
-			<h1>Chat-&Uuml;bersicht</h1>
-			<p><a href="start-chat.php" class="btn btn-primary">Neuen Chat starten</a> <a href="logout.php" class="btn btn-secondary">Logout</a></p>
+<head>
+<title>Chat-&Uuml;bersicht</title>
+<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+</head>
+
+<body>
+	<div class="container">
+		<div class="row mt-2">
+			<div class="col">
+				<h1>Chat-&Uuml;bersicht</h1>
+			</div>
+			<div class="col-sm">
+				<p class="text-right">
+					<a href="logout.php" class="btn btn-danger">Logout</a>
+				</p>
+			</div>
 		</div>
-		
-		<script type="text/javascript" src="js/bootstrap.min.js"></script>
-	</body>
+
+		<div class="row">
+			<div class="container-fluid col"></div>
+		</div>
+
+		<div class="row">
+			<div class="col">
+				<strong>Chat hinzufügen</strong>
+				<form action="find-user.php" method="get">
+					<div class="form-group">
+						<label for="user">Bitte einzelnen Benutzer ausw&auml;hlen:</label> 
+						<input type="text" name="user" class="form-control" />
+					</div>
+					<input type="submit" class="btn btn-primary" value="Benutzer suchen" />
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+</body>
 
 </html>
