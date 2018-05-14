@@ -62,6 +62,7 @@ if (isset($_POST["username"]) and isset($_POST["password"]) and ! isset($_POST["
                  * weitergeleitet werden. Außerdem wird der Login mit einer
                  * $_SESSION Variable festgehalten.
                  */
+                session_start();
                 $_SESSION["user"] = $_POST["username"];
                 header("Location: chats.php");
                 exit();
