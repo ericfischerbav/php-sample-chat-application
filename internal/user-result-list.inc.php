@@ -1,4 +1,4 @@
-<form action="chat.php" method="get">
+<form action="chat.php" method="post">
 <div class="form-group form-check">
 	<input type="hidden" name="start-chat" />
 	<?php 
