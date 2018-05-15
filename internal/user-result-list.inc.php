@@ -5,7 +5,7 @@
 	$user_found = false;
 	foreach($users as $user) {
 	    $user_found = true;
-	    echo '<input type="checkbox" name="users" value="'.$user.'" id="'.$user.'" class="form-check-input" />';
+	    echo '<input type="checkbox" name="users[]" value="'.$user.'" id="'.$user.'" class="form-check-input" />';
 	    echo '<label for="'.$user.'" class="form-check-label">'.$user.'</label>';
 	    echo '<br/>';
 	}

@@ -25,13 +25,15 @@ mysqli_select_db($connection, DB_NAME);
  * Das soll allerdings nur gemacht werden, wenn auch
  * das "start-chat"-Flag gesetzt ist.
  */
-$error_inserting = true;
+$error_inserting = false;
 if(isset($_POST["start-chat"])) {
-    $users = $_POST["users"];
     $chat_id = generate_chat_id();
-    foreach ($users as $user) {
-        $sql = "INSERT INTO nimmtteil (chat, benutzer) VALUES ('".$user."', ".$chat_id.")";
+    var_dump($_POST["users"]);
+    foreach ($_POST["users"] as $user) {
+        $sql = "INSERT INTO nimmtteil (benutzer, chat) VALUES ('".$user."', ".$chat_id.")";
+        echo $sql;
         $db_result = mysqli_query($connection, $sql);
+        var_dump($db_result);
         if($db_result == false) {
             $error_inserting = true;
             /*
@@ -40,7 +42,9 @@ if(isset($_POST["start-chat"])) {
              * läuft. Wäre dieser deaktiviert, würde ein einfaches
              * Rollback reichen.
              */
-            
+            $delete_chat_sql = "DELETE FROM nimmtteil WHERE chat = ".$chat_id;
+            echo $delete_chat_sql;
+            mysqli_query($connection, $delete_chat_sql);
             break;
         }
     }
@@ -71,8 +75,6 @@ function generate_chat_id() {
     }
 }
 
-mysqli_close($connection);
-
 ?>
 
 <html>
@@ -95,9 +97,31 @@ mysqli_close($connection);
 				</p>
 			</div>
 		</div>
+		<div class="row">
+			<?php 
+			if ($error_inserting) {
+			    $text = "Es gab einen Fehler beim erstellen des Chats. Bitte gehe zur&uuml;ck zur &Uuml;bersicht.";
+			    $type = "danger";
+			    include "internal/message.inc.php";
+			} else {
+			    /*
+			     * Suche alle Nachrichten zum entsprechenden Chat in der Datenbank.
+			     */
+			    $sql = "SELECT id FROM nachricht WHERE chat = ".$chat_id;
+			    $db_result = mysqli_query($connection, $sql);
+			    $messages_ids = array();
+			    while ($row = mysqli_fetch_assoc($db_result)) {
+			        $messages_ids[] = $row["id"];
+			    }
+			    include "internal/chat-container.inc.php";
+			}
+			?>
+		</div>
 	</div>
 
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 </body>
 
 </html>
+
+<?php mysqli_close($connection); ?>
