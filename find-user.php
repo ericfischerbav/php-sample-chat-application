@@ -60,7 +60,7 @@ if (isset($_GET["user"])) {
 			} elseif (isset($users)) {
 			    if(!empty($users))
 			     include "internal/user-result-list.inc.php";
-			     else {
+			    else {
 			         echo '<div class="alert alert-danger">Keine Benutzer zu dieser Suche gefunden</div>';
 			         include 'internal/searchfield.inc.php';
 			     }
