@@ -9,6 +9,10 @@ if (! isset($_SESSION["user"])) {
 
 include "internal/properties.inc.php";
 
+// DB-Verbindung öffnen
+$connection = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD);
+mysqli_select_db($connection, DB_NAME);
+
 /**
  * Diese Funktion selektiert alle Benutzer aus der Datenbank, mit denen Kontakt aufgenommen werden kann.
  *
@@ -16,9 +20,7 @@ include "internal/properties.inc.php";
  */
 function select_users()
 {
-    // DB-Verbindung öffnen
-    $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD);
-    mysqli_select_db($connection, DB_NAME);
+    global $connection;
     
     // Benutzer selektieren
     $sql = "SELECT name FROM benutzer WHERE NOT name = '" . $_SESSION["user"] . "'";
@@ -38,13 +40,35 @@ function select_users()
  */
 function fetch_chats()
 {
-    // DB-Verbindung öffnen
-    $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD);
-    mysqli_select_db($connection, DB_NAME);
+    global $connection;
     
     // Hole Teilnehmer der aktiven Chats
-    $sql = "SELECT benutzer FROM nimmtteil nt1 WHERE chat IN (SELECT chat FROM nimmtteil nt2 WHERE nt2.benutzer = '".$_SESSION["user"]."') AND NOT nt1.benutzer = '".$_SESSION["user"]."'";
+    $sql = "SELECT * FROM nimmtteil nt1 WHERE chat IN (SELECT chat FROM nimmtteil nt2 WHERE nt2.benutzer = '" . $_SESSION["user"] . "') AND NOT nt1.benutzer = '" . $_SESSION["user"] . "'";
     $db_result = mysqli_query($connection, $sql);
+    
+    $chats = array();
+    
+    while ($row = mysqli_fetch_assoc($db_result)) {
+        $chats[] = $row["chat"];
+    }
+    
+    return $chats;
+}
+
+function fetch_users_in_chat($chat)
+{
+    global $connection;
+    
+    $sql = "SELECT * FROM nimmtteil WHERE chat = '" . $chat . "'";
+    $db_result = mysqli_query($connection, $sql);
+    
+    $users = array();
+    
+    while ($row = mysqli_fetch_assoc($db_result)) {
+        $users[] = $row["benutzer"];
+    }
+    
+    return $users;
 }
 
 ?>
@@ -70,7 +94,21 @@ function fetch_chats()
 		</div>
 
 		<div class="row">
-			<div class="container-fluid col"></div>
+			<div class="container-fluid col">
+			<?php
+$chats_found = false;
+foreach (fetch_chats() as $chat) {
+    $chats_found = true;
+    $users = fetch_users_in_chat($chat);
+    echo '<div class="row"><div class="col-lg"><a href="chat.php?id='.$chat.'">';
+    echo $users[0];
+    for ($i = 1; $i < count($users); $i++) {
+        echo ', '.$users[$i];
+    }
+    echo '</a></div>';
+}
+?>
+			</div>
 		</div>
 
 		<div class="row">
@@ -78,10 +116,11 @@ function fetch_chats()
 				<strong>Chat hinzufügen</strong>
 				<form action="find-user.php" method="get">
 					<div class="form-group">
-						<label for="user">Bitte einzelnen Benutzer ausw&auml;hlen:</label> 
+						<label for="user">Bitte einzelnen Benutzer ausw&auml;hlen:</label>
 						<input type="text" name="user" class="form-control" />
 					</div>
-					<input type="submit" class="btn btn-primary" value="Benutzer suchen" />
+					<input type="submit" class="btn btn-primary"
+						value="Benutzer suchen" />
 				</form>
 			</div>
 		</div>
