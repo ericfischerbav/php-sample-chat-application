@@ -1,7 +1,5 @@
 <?php 
 
-include "../properties.inc.php";
-
 class Message {
     private $id = 0;
     private $sender = "";
@@ -12,7 +10,7 @@ class Message {
     public function __construct($id) {
         $this->id = $id;
         
-        refresh_values();
+        $this->refresh_values();
     }
     
     public function refresh_values() {
@@ -25,7 +23,7 @@ class Message {
         $row = mysqli_fetch_assoc($db_result);
         $this->sender = $row["sender"];
         $this->chat = $row["chat"];
-        $this->date = $row["zeit"];
+        $this->time = $row["zeit"];
         $this->text = $row["text"];
         
         mysqli_close($connection);

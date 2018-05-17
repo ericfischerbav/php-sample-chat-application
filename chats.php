@@ -43,7 +43,7 @@ function fetch_chats()
     global $connection;
     
     // Hole Teilnehmer der aktiven Chats
-    $sql = "SELECT * FROM nimmtteil nt1 WHERE chat IN (SELECT chat FROM nimmtteil nt2 WHERE nt2.benutzer = '" . $_SESSION["user"] . "') AND NOT nt1.benutzer = '" . $_SESSION["user"] . "'";
+    $sql = "SELECT DISTINCT chat FROM nimmtteil nt1 WHERE chat IN (SELECT chat FROM nimmtteil nt2 WHERE nt2.benutzer = '" . $_SESSION["user"] . "') AND NOT nt1.benutzer = '" . $_SESSION["user"] . "'";
     $db_result = mysqli_query($connection, $sql);
     
     $chats = array();
@@ -105,7 +105,7 @@ foreach (fetch_chats() as $chat) {
     for ($i = 1; $i < count($users); $i++) {
         echo ', '.$users[$i];
     }
-    echo '</a></div>';
+    echo '</a></div></div>';
 }
 ?>
 			</div>

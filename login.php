@@ -35,13 +35,13 @@ if (isset($_POST["username"]) and isset($_POST["password"]) and ! isset($_POST["
         $password_missing = true;
     }
     
-    if (!$username_missing and !$password_missing) {
+    if (! $username_missing and ! $password_missing) {
         // Datenbankverbindung aufbauen
         $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD);
         mysqli_select_db($connection, DB_NAME);
         
         // Suche den Benutzer mit dem entsprechenden Benutzernamen
-        $sql = "SELECT * FROM benutzer WHERE name ='".$_POST["username"]."'";
+        $sql = "SELECT * FROM benutzer WHERE name ='" . $_POST["username"] . "'";
         $db_result = mysqli_query($connection, $sql);
         $password_hash = "";
         while ($row = mysqli_fetch_assoc($db_result)) {
@@ -69,7 +69,6 @@ if (isset($_POST["username"]) and isset($_POST["password"]) and ! isset($_POST["
             }
         }
     }
-    
 } elseif (isset($_POST["username"]) and isset($_POST["password"]) and isset($_POST["repeat-pw"])) {
     // Registrierung
     /*
@@ -120,7 +119,8 @@ function create_error_message($text)
     include "internal/message.inc.php";
 }
 
-function create_success_message($text) {
+function create_success_message($text)
+{
     $type = "success";
     include "internal/message.inc.php";
 }
@@ -135,24 +135,41 @@ function create_success_message($text) {
 
 <body>
 	<div class="container">
-		<h1><?php echo $title; ?></h1>
+		<div class="row mt-2">
+			<div class="col">
+				<h1><?php echo $title; ?></h1>
+			</div>
+			<div class="col-sm">
+				<p class="text-right">
+					<?php 
+					if (isset($_GET["register"])) {
+					   echo '<a href="login.php" class="btn btn-primary">Zum Login</a>';
+					}
+					?>
+				</p>
+			</div>
+		</div>
 		<?php
-		if ($unknown_error_occurred) {
-		    create_error_message("Es ist ein unbekannter Fehler aufgetreten. Der Prozess konnte nicht abgeschlossen werden.");
-		}
-		
-		if (isset($_GET["register-success"])) {
-		    create_success_message("Registrierung erfolgreich. Bitte logge dich ein.");
-		}
-		
-		if($username_not_found) {
-		    create_error_message("Zu diesem Benutzernamen wurde kein Benutzer gefunden.");
-		}
-		
-		if ($wrong_password) {
-		    create_error_message("Das Passwort ist falsch. Bitte versuche es nocheinmal.");
-		}
-		?>
+if ($unknown_error_occurred) {
+    create_error_message("Es ist ein unbekannter Fehler aufgetreten. Der Prozess konnte nicht abgeschlossen werden.");
+}
+
+if (isset($_GET["register-success"])) {
+    create_success_message("Registrierung erfolgreich. Bitte logge dich ein.");
+}
+
+if ($username_not_found) {
+    create_error_message("Zu diesem Benutzernamen wurde kein Benutzer gefunden.");
+}
+
+if ($wrong_password) {
+    create_error_message("Das Passwort ist falsch. Bitte versuche es nocheinmal.");
+}
+
+if (isset($_GET["not-authorized"])) {
+    create_error_message("Bitte logge dich ein, um diesen Bereich zu sehen.");
+}
+?>
 		<form <?php echo 'action="'.$action.'"'; ?> method="post">
 			<div class="form-group">
 				<label for="username">Benutzername:</label>
@@ -175,7 +192,8 @@ function create_success_message($text) {
     }
     ?>
      <input type="password" class="form-control" id="password"
-					name="password" <?php if(isset($_POST["password"])) {echo 'value="'.$_POST["password"].'"';} ?> />
+					name="password"
+					<?php if(isset($_POST["password"])) {echo 'value="'.$_POST["password"].'"';} ?> />
 			</div>
 				<?php
     // Nur wenn sich der Benutzer registrieren will, wird ein Feld zur
@@ -187,6 +205,11 @@ function create_success_message($text) {
 				<input type="submit"
 				<?php echo 'value="'.$title.'" '; echo 'name="'.$title.'" '; ?>
 				class="btn btn-primary" />
+				<?php 
+				if (isset($_GET["register"])) {
+				    echo '<a href="login.php" class="btn btn-danger">Abbrechen</a>';
+				}
+				?>
 		</form>
 			<?php
 // Falls das Login-Form angezeigt wird, so wird ein Link
@@ -195,8 +218,7 @@ if (! isset($_GET["register"])) {
     echo '<p>Noch kein Account? <a href="login.php?register">Jetzt registrieren</a>.';
 }
 ?>
-		</div>
-
+	</div>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 </body>
 

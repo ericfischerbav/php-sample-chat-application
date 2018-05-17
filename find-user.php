@@ -19,7 +19,7 @@ if (isset($_GET["user"])) {
     mysqli_select_db($connection, DB_NAME);
     
     // Suche in den Benutzern mit dem Suchquery
-    $sql = "SELECT name FROM benutzer WHERE name LIKE '%".$_GET["user"]."%' AND NOT name = '".$_GET["user"]."'";
+    $sql = "SELECT name FROM benutzer WHERE name LIKE '%".$_GET["user"]."%' OR name = '".$_GET["user"]."' AND NOT name = '".$_SESSION["user"]."'";
     $db_result = mysqli_query($connection, $sql);
     
     $users = array();

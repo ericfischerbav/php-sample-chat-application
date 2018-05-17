@@ -1,5 +1,10 @@
 <div class="form-group">
 	<label for="repeat-pw">Passwort wiederholen:</label>
+	<?php
+if ($pw_not_equal) {
+    create_error_message("Die Passw&ouml;rter stimmen nicht &uuml;berein.");
+}
+?>
 	<?php 
 	if ($repeat_pw_missing) {
 	    $text = "Bitte Passwort wiederholen.";
