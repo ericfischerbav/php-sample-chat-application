@@ -1,5 +1,6 @@
 # PHP-Chat Applikation #
 Diese kleine App soll eine weitere Übung für die Web-DB-Kopplung Klausur sein.
+
 ## Anforderungen ##
 * Benutzer müssen sich anmelden und registrieren können.
 * Passwort zurücksetzen ist nicht erforderlich.
@@ -14,4 +15,5 @@ Die Lösung ist detaillierter ausprogrammiert als die von Herrn Kirchberg in sei
 In diesem Projekt gibt es viele Ordner, die nicht zwingend notwendig sind. Diese sind
 * css
 * js
+
 Hier finden sich die Dateien für Bootstrap, die der Anwendung zumindest eine etwas verbesserte UI bieten. Allerdings wird die Funktionalität nicht beeinflusst. Im Ordner "internal" befinden sich inkludierte PHP-Dateien, unter anderem auch Klassen. Diese werden in diesem Beispiel benötigt, da so bestimmte Teile ausgelagert werden. Generell kann auch darauf verzichtet werden, wenn alle Code-Teile auch in den entsprechenden Dateien direkt eingebunden werden.
