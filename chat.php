@@ -65,9 +65,9 @@ if (isset($_POST["start-chat"])) {
     if ($message_text != "") {
         $sql = "INSERT INTO nachricht (id, sender, zeit, chat, text) VALUES (" . $message_id . ", '" . $message_sender . "', '" . $message_time . "', " . $chat_id . ", '" . $message_text . "')";
         $db_result = mysqli_query($connection, $sql);
-    }
-    if ($db_result == false) {
-        $error_inserting = true;
+        if ($db_result == false) {
+            $error_inserting = true;
+        }
     }
 } elseif (isset($_GET["id"])) {
     $chat_id = $_GET["id"];
