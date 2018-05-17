@@ -6,6 +6,5 @@ Diese kleine App soll eine weitere Übung für die Web-DB-Kopplung Klausur sein.
 * Benutzer müssen sich untereinander Nachrichten senden können.
 * Dabei darf eine Nachricht auch an mehrere Personen gesendet werden.
 * Die Nachrichten sollen dabei auch in Chats dargestellt werden.
-## Datenbank ##
-In den Downlaods in diesem Repository finden sich die Tabellendefinitionen für MySQL. Zur Übung darf aber auch jeder selber
-sein ERM modellieren, das hat für die Programmierung keine Auswirkungen.
+## Umsetzung der Lösung ##
+Die Lösung ist detaillierter ausprogrammiert als die von Herrn Kirchberg in seinem Beispiel. Ich wollte hierbei möglichst alle Möglichkeiten abdecken, die man einbauen kann. Viele davon sind nicht notwendig, damit das Programm funktioniert. Achtet generell darauf, dass ihr alle Anforderungen abdeckt.
