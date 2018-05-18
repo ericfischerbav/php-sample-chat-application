@@ -17,5 +17,4 @@ CREATE TABLE nachricht (
 	chat INT NOT NULL,
 	sender VARCHAR(50) NOT NULL,
 	FOREIGN KEY (sender) REFERENCES benutzer(name),
-	FOREIGN KEY (chat) REFERENCES nimmtteil(chat)
 );
