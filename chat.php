@@ -181,7 +181,7 @@ if ($error_inserting) {
 				<form action=<?php echo '"chat.php?id='.$chat_id.'"';?>
 					method="post">
 					<div class="form-group">
-						<textarea class="form-control" name="message" rows="5" cols="50"></textarea>
+						<textarea class="form-control" name="message" rows="5" cols="50" maxlenth="600"></textarea>
 						<input type="hidden" name="chat-id"
 							value=<?php echo '"'.$chat_id.'"'; ?> />
 					</div>

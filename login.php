@@ -180,7 +180,7 @@ if (isset($_GET["not-authorized"])) {
     }
     ?> 
     <input type="text" class="form-control" id="username"
-					name="username"
+					name="username" maxlength="50"
 					<?php if(isset($_POST["username"])) {echo 'value="'.$_POST["username"].'"';} ?> />
 			</div>
 			<div class="form-group">
