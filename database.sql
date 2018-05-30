@@ -1,6 +1,6 @@
 CREATE TABLE benutzer (
 	name VARCHAR(50) PRIMARY KEY,
-	passwort VARCHAR(50) NOT NULL
+	password VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE nimmtteil (
@@ -16,5 +16,5 @@ CREATE TABLE nachricht (
 	zeit TIMESTAMP NOT NULL,
 	chat INT NOT NULL,
 	sender VARCHAR(50) NOT NULL,
-	FOREIGN KEY (sender) REFERENCES benutzer(name),
+	FOREIGN KEY (sender) REFERENCES benutzer(name)
 );
