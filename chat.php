@@ -28,29 +28,36 @@ mysqli_select_db($connection, DB_NAME);
  */
 $error_inserting = false;
 if (isset($_POST["start-chat"])) {
-    $chat_id = generate_chat_id();
-    /*
-     * Füge zuerst einen Eintrag mit dem aktuell aktiven Benutzer
-     * in die Datenbank ein.
-     */
-    $sql = "INSERT INTO nimmtteil (benutzer, chat) VALUES ('" . $_SESSION["user"] . "', " . $chat_id . ")";
-    $db_result = mysqli_query($connection, $sql);
-    foreach ($_POST["users"] as $user) {
-        $sql = "INSERT INTO nimmtteil (benutzer, chat) VALUES ('" . $user . "', " . $chat_id . ")";
+    
+    if (! are_users_already_in_chat($_POST["users"])) {
+        
+        $chat_id = generate_chat_id();
+        /*
+         * Füge zuerst einen Eintrag mit dem aktuell aktiven Benutzer
+         * in die Datenbank ein.
+         */
+        $sql = "INSERT INTO nimmtteil (benutzer, chat) VALUES ('" . $_SESSION["user"] . "', " . $chat_id . ")";
         $db_result = mysqli_query($connection, $sql);
-        if ($db_result == false) {
-            $error_inserting = true;
-            /*
-             * Alle Einträge löschen, die bisher geschrieben wurden.
-             * Das ist nur notwendig, da MySQL im Auto-Commit-Modus
-             * läuft. Wäre dieser deaktiviert, würde ein einfaches
-             * Rollback reichen.
-             */
-            $delete_chat_sql = "DELETE FROM nimmtteil WHERE chat = " . $chat_id;
-            echo $delete_chat_sql;
-            mysqli_query($connection, $delete_chat_sql);
-            break;
+        foreach ($_POST["users"] as $user) {
+            $sql = "INSERT INTO nimmtteil (benutzer, chat) VALUES ('" . $user . "', " . $chat_id . ")";
+            $db_result = mysqli_query($connection, $sql);
+            if ($db_result == false) {
+                $error_inserting = true;
+                /*
+                 * Alle Einträge löschen, die bisher geschrieben wurden.
+                 * Das ist nur notwendig, da MySQL im Auto-Commit-Modus
+                 * läuft. Wäre dieser deaktiviert, würde ein einfaches
+                 * Rollback reichen.
+                 */
+                $delete_chat_sql = "DELETE FROM nimmtteil WHERE chat = " . $chat_id;
+                echo $delete_chat_sql;
+                mysqli_query($connection, $delete_chat_sql);
+                break;
+            }
         }
+    } else {
+        header("Location: chat.php?id=" . get_existing_chat($_POST["users"]));
+        exit();
     }
 } elseif (isset($_POST["message"]) and isset($_POST["chat-id"])) {
     $chat_id = $_POST["chat-id"];
@@ -131,6 +138,49 @@ function fetch_messages($chat_id)
     return $messages;
 }
 
+function are_users_already_in_chat($users)
+{
+    // Überprüfe hier, ob eine Chat-ID gefunden wurde. Wenn nicht, existiert kein Chat.
+    return get_existing_chat($users) != 0;
+}
+
+/**
+ * Fetches the chat number of the chat of the given users.
+ *
+ * @param array $users
+ * @return number
+ */
+function get_existing_chat($users)
+{
+    global $connection;
+    
+    // Dieser SQL sucht alle Chats, in denen alle gegebenen Benutzer teilnehmen
+    // Achtung: auch der angemeldete Benutzer muss hier geprüft werden
+    $sql = "SELECT DISTINCT chat FROM nimmtteil WHERE chat IN (SELECT chat FROM nimmtteil WHERE benutzer = '" . $_SESSION["user"] . "')";
+    
+    foreach ($users as $user) {
+        $sql .= " AND chat IN (SELECT chat FROM nimmtteil WHERE benutzer = '" . $user . "')";
+    }
+    
+    $result = mysqli_query($connection, $sql);
+    
+    $chat_id = 0;
+    
+    while ($row = mysqli_fetch_assoc($result)) {
+        $check_sql = "SELECT count(*) as count FROM nimmtteil WHERE chat = " . $row["chat"];
+        $check_result = mysqli_query($connection, $check_sql);
+        $check_row = mysqli_fetch_assoc($check_result);
+        /*
+         * Es kann vorkommen, dass alle Benutzer in einem Chat sind, gleichteig aber auch noch andere Benutzer
+         * am Chat teilnehmen. Diese dürfen wir selbstverständlich nicht berücksichtigen.
+         */
+        if (count($users) + 1 == $check_row["count"]) {
+            $chat_id = $row["chat"];
+        }
+    }
+    return $chat_id;
+}
+
 ?>
 
 <html>
@@ -181,7 +231,8 @@ if ($error_inserting) {
 				<form action=<?php echo '"chat.php?id='.$chat_id.'"';?>
 					method="post">
 					<div class="form-group">
-						<textarea class="form-control" name="message" rows="5" cols="50" maxlenth="600"></textarea>
+						<textarea class="form-control" name="message" rows="5" cols="50"
+							maxlenth="600"></textarea>
 						<input type="hidden" name="chat-id"
 							value=<?php echo '"'.$chat_id.'"'; ?> />
 					</div>

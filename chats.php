@@ -116,7 +116,7 @@ foreach (fetch_chats() as $chat) {
 				<strong>Chat hinzufügen</strong>
 				<form action="find-user.php" method="get">
 					<div class="form-group">
-						<label for="user">Bitte einzelnen Benutzer ausw&auml;hlen:</label>
+						<label for="user">Suche Benutzer (mehrere Benutzer durch Komma und Leerzeichen trennen):</label>
 						<input type="text" name="user" class="form-control" />
 					</div>
 					<input type="submit" class="btn btn-primary"

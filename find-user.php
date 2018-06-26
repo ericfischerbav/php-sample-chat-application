@@ -13,19 +13,24 @@ $page_title = "";
 
 if (isset($_GET["user"])) {
     $page_title = "Benutzer ausw&auml;hlen und zu Chat hinzuf&uuml;gen";
-    
     // DB-Verbindung aufbauen
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD);
     mysqli_select_db($connection, DB_NAME);
     
-    // Suche in den Benutzern mit dem Suchquery
-    $sql = "SELECT name FROM benutzer WHERE name LIKE '%".$_GET["user"]."%' OR name = '".$_GET["user"]."' AND NOT name = '".$_SESSION["user"]."'";
-    $db_result = mysqli_query($connection, $sql);
-    
+    $users_search = array_unique(explode(", ", $_GET["user"]));
     $users = array();
-    while ($row = mysqli_fetch_assoc($db_result)) {
-        $users[] = $row["name"];
+    
+    foreach ($users_search as $user) {
+        // Suche in den Benutzern mit dem Suchquery
+        $sql = "SELECT name FROM benutzer WHERE name LIKE '%".$user."%' OR name = '".$user."' AND NOT name = '".$_SESSION["user"]."'";
+        $db_result = mysqli_query($connection, $sql);
+        
+        while ($row = mysqli_fetch_assoc($db_result)) {
+            $users[] = $row["name"];
+        }
     }
+    
+    $users = array_unique($users);
     
 } else {
     $display_search_field = true;
