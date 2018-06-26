@@ -132,6 +132,7 @@ function fetch_messages($chat_id)
     
     while ($row = mysqli_fetch_assoc($db_result)) {
         $message = new Message($row["id"]);
+        $message->set_read($_SESSION["user"]);
         $messages[] = $message;
     }
     

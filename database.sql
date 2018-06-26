@@ -18,3 +18,12 @@ CREATE TABLE nachricht (
 	sender VARCHAR(50) NOT NULL,
 	FOREIGN KEY (sender) REFERENCES benutzer(name)
 );
+
+CREATE TABLE gelesen (
+	nachricht INT,
+    benutzer VARCHAR(50),
+    zeit timestamp NOT NULL,
+    FOREIGN KEY (nachricht) REFERENCES nachricht(id),
+    FOREIGN KEY (benutzer) REFERENCES benutzer(name),
+    PRIMARY KEY (nachricht, benutzer)
+);
